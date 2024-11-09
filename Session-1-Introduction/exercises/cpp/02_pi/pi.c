@@ -69,7 +69,7 @@ double CalcPi(int n)
     double fSum = 0.0;
     double fX;
     int i;
-
+#pragma omp parallel for private(fX) reduction(+:fSum)
     for (i = 0; i < n; i += 1)
     {
         fX = fH * ((double)i + 0.5);

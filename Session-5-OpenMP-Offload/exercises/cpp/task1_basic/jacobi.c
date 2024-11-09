@@ -69,15 +69,17 @@ int main(int argc, char** argv)
     while ( err > tol && iter < iter_max ) {
 
 	err = 0.0;
-
+#pragma omp target teams distribute parallel for reduction(max:err) map(to:A[0:n*m]) map(from:Anew[0:n*m])
         for( j = 1; j < n-1; j++) {
             for( i = 1; i < m-1; i++ ) {
                 Anew[j *m+ i] = 0.25 * ( A[j     *m+ (i+1)] + A[j     *m+ (i-1)]
                                      +   A[(j-1) *m+ i]     + A[(j+1) *m+ i]);
                 err = fmax(err,fabs(Anew[j*m+i]-A[j*m+i]));
+		//printf("<%d>\n",omp_get_thread_num()); //give current threads using
+		//printf("<%d>\n",omp_get_num_threads()); // give total number of usable threads 128
             }
         }
-
+        printf("<%d>\n",omp_get_num_threads()); //give threads now 1
         for( j = 1; j < n-1; j++) {
             for( i = 1; i < m-1; i++ ) {
                 A[j *m+ i] = Anew[j *m+ i];

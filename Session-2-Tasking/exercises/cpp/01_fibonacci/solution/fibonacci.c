@@ -41,7 +41,6 @@ int fib(int n)
     return n;
   else if (n < 30)
     return ser_fib(n);
-
   #pragma omp task shared(x)
   {
     x = fib(n - 1);
@@ -53,7 +52,6 @@ int fib(int n)
   }
 
   #pragma omp taskwait
-
   return x+y;
 
 }

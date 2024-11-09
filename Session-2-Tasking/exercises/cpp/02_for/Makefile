@@ -1,6 +1,6 @@
 .PHONY: clean run go debug release
 
-PROG=for
+PROG=for-taskloop
 CC = cc
 FLAGS_OPENMP = -fopenmp
 

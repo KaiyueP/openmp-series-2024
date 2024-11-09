@@ -80,15 +80,20 @@ void jacobi (
   k = 1;
 
   while (k <= maxit && error > tol) {
-
+ 
     error = 0.0;
+    #pragma omp parallel
+    {
+
     /* copy new solution into old */
+    #pragma omp for private(i,j)
     for (j=0; j<m; j++)
       for (i=0; i<n; i++){
         UOLD(j,i) = U(j,i);
       }
 
     /* compute stencil, residual and update */
+    #pragma omp for private(i,j,resid) reduction(+:error)
     for (j=1; j<m-1; j++){
       for (i=1; i<n-1; i++){
         resid =(
@@ -104,6 +109,7 @@ void jacobi (
         error =error + resid*resid;
 
       }
+    }
     }
     /* error check */
     k++;
@@ -175,8 +181,10 @@ void initialize(
 
   *dx = 2.0 / (n-1);
   *dy = 2.0 / (m-1);
-
+  #pragma omp parallel
+  {
   /* Initilize initial condition and RHS */
+  #pragma omp for private(i,j,xx,yy)	  
   for (j=0; j<m; j++){
     for (i=0; i<n; i++){
       xx = -1.0 + *dx * (i-1);
@@ -185,6 +193,7 @@ void initialize(
       F(j,i) = -alpha * (1.0 - xx*xx) * (1.0 - yy*yy)
                 - 2.0 * (1.0 - xx*xx) - 2.0 * (1.0 - yy*yy);
     }
+  }
   }
 }
 
@@ -208,7 +217,7 @@ void error_check(
   dx = 2.0 / (n-1);
   dy = 2.0 / (m-1);
   error = 0.0;
-
+  #pragma omp parallel for private(i,j,xx, yy, temp) reduction(+:error)
   for (j=0; j<m; j++){
     for (i=0; i<n; i++){
       xx = -1.0 + dx * (i-1);

@@ -27,11 +27,18 @@ int fib(int n)
   int x, y;
   if (n < 2)
     return n;
-
+  //canot have a task group them(task wait cannot wait for grandchild), but use taskgroup to get rid of wait is OK
+#pragma omp taskgroup
+  {
+  #pragma omp task shared(x) final(n<30)
+  {
   x = fib(n - 1);
-
-  y = fib(n - 2);
-
+  }
+  #pragma omp task shared(y) final(n<30)
+  {
+  y = fib(n - 2); 
+  }
+  }
   return x+y;
 
 }
@@ -44,9 +51,13 @@ int main()
   printf("Please insert n, to calculate fib(n): \n");
   scanf("%d",&n);
   starttime=omp_get_wtime();
-
+  #pragma omp parallel
+  {
+  #pragma omp single
+  {
   fibonacci=fib(n);
-
+  }
+  }
   printf("fib(%d)=%d \n",n,fibonacci);
   printf("calculation took %lf sec\n",omp_get_wtime()-starttime);
   return 0;

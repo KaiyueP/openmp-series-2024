@@ -69,9 +69,7 @@ int main(int argc, char** argv)
     while ( err > tol && iter < iter_max ) {
 
 	err = 0.0;
-
-#pragma omp target teams distribute parallel for reduction(max:err) schedule(nonmonotonic:static,1) \
-            map(to:A[0:n*m]) map(from:Anew[0:n*m], err)
+#pragma omp target teams distribute parallel for reduction(max:err) schedule(nonmonotonic:static,1)  map(to:A[0:n*m]) map(from:Anew[0:n*m])
         for( j = 1; j < n-1; j++) {
             for( i = 1; i < m-1; i++ ) {
                 Anew[j *m+ i] = 0.25 * ( A[j     *m+ (i+1)] + A[j     *m+ (i-1)]

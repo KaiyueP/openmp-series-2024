@@ -56,7 +56,7 @@ int main(int argc, char **argv)
     return 0;
 }
 
-
+#pragma omp declare simd
 double f(double a)
 {
     return (4.0 / (1.0 + a*a));
@@ -69,7 +69,9 @@ double CalcPi(int n)
     double fSum = 0.0;
     double fX;
     int i;
-
+// I also parallelize the for loop, to do so, declare is needed (but if not, no error). To avoid the for loop parallelization, you can use what in the solution
+// #pragma omp simd reduction(+:fSum) private(fX) 
+#pragma omp parallel for simd reduction(+:fSum) private(fX)
     for (i = 0; i < n; i += 1)
     {
         fX = fH * ((double)i + 0.5);

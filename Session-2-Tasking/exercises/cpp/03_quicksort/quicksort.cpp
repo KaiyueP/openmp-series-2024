@@ -35,8 +35,15 @@ void quicksort(int * array, int first, int last){
 	int pivotElement;
 	if(first<last){
 		pivotElement = pivot(array,first,last);
+                #pragma omp task default(shared)
+		{
 		quicksort(array,first,pivotElement-1);
+		}
+                #pragma omp task default(shared)
+		{
 		quicksort(array,pivotElement+1,last);
+		}
+                #pragma omp taskwait
 	}
 }
 
@@ -65,7 +72,13 @@ int main(int argc, char *argv[]){
 	cout << "Sorting an array of " << length << " elements." << endl;	
 
 	t1=omp_get_wtime();
+        #pragma omp parallel
+	{
+	#pragma omp single
+	{
 	quicksort(toBeSorted,0,length-1);
+	}
+	}
 	t2=omp_get_wtime()-t1;
 
 	cout << "quicksort took " << t2 << " sec. to complete" << endl;

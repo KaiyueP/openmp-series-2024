@@ -64,11 +64,11 @@ int main(int argc, char** argv)
 
 
     //TODO: optimize the data movement
-
+#pragma omp target data map(to:A[0:n*m]) map(alloc:Anew[0:n*m])  //everything are in target device during the while loop
     while ( err > tol && iter < iter_max ) {
 
         err = 0.0;
-
+#pragma omp target teams distribute parallel for reduction(max:err)
         for( j = 1; j < n-1; j++) {
             for( i = 1; i < m-1; i++ ) {
                 Anew[j *m+ i] = 0.25 * ( A[j     *m+ (i+1)] + A[j     *m+ (i-1)]
@@ -78,7 +78,7 @@ int main(int argc, char** argv)
         }
 
         //TODO: use OpenACC to accelerate this loop on a GPU and keep data resident in GPU memory
-
+#pragma omp target teams distribute parallel for
         for( j = 1; j < n-1; j++) {
             for( i = 1; i < m-1; i++ ) {
                 A[j *m+ i] = Anew[j *m+ i];

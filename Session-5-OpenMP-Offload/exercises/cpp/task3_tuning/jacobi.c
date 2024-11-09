@@ -69,7 +69,7 @@ int main(int argc, char** argv)
         err = 0.0;
 
 	// TODO: give the compiler more options to restructure the loop
-#pragma omp target teams distribute parallel for reduction(max:err) schedule(nonmonotonic:static,1)
+#pragma omp target teams distribute parallel for reduction(max:err) collapse(2) //transform to single loop and para it
         for( j = 1; j < n-1; j++) {
             for( i = 1; i < m-1; i++ ) {
                 Anew[j *m+ i] = 0.25 * ( A[j     *m+ (i+1)] + A[j     *m+ (i-1)]
@@ -79,7 +79,7 @@ int main(int argc, char** argv)
         }
 
 	// TODO: the same here
-#pragma omp target teams distribute parallel for schedule(nonmonotonic:static,1)
+#pragma omp target teams distribute parallel for collapse(2) simd //no improvement from simd
         for( j = 1; j < n-1; j++) {
             for( i = 1; i < m-1; i++ ) {
                 A[j *m+ i] = Anew[j *m+ i];

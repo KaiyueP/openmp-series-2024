@@ -24,7 +24,6 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-
 double do_some_computation(int i)
 {
 	double t = 0.0;
@@ -33,18 +32,22 @@ double do_some_computation(int i)
 	{
 		t += sin((double)j) * cos((double)j);
 	}
+	printf("I am using thread id %d\n",omp_get_thread_num());
 	return t;
 }
 
 
 int main(int argc, char* argv[])
 {
-	const int dimension = 500;
+	printf("Number of threads: %d\n", omp_get_max_threads());
+
+	const int dimension = 2000;
 	int i;
 	double result = 0.0;
 
 	double t1 = omp_get_wtime();
 
+        #pragma omp parallel for schedule(dynamic) reduction(+:result)
 	for (i = 0; i < dimension; i++)
 	{
 		result += do_some_computation(i);
